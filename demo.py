@@ -3,6 +3,8 @@
 
 from HandTrackerRenderer import HandTrackerRenderer
 import argparse
+import rospy
+from std_msgs.msg import String
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-e', '--edge', action="store_true",
@@ -60,7 +62,8 @@ tracker = HandTracker(
         input_src=args.input, 
         use_lm= not args.no_lm, 
         use_world_landmarks=args.use_world_landmarks,
-        use_gesture=args.gesture,
+        # use_gesture=args.gesture,
+        use_gesture=True,
         xyz=args.xyz,
         solo=args.solo,
         crop=args.crop,
@@ -77,6 +80,14 @@ renderer = HandTrackerRenderer(
         tracker=tracker,
         output=args.output)
 
+
+rospy.init_node("gesture_track")
+pub = rospy.Publisher('gesture', String, queue_size=10)
+rate = rospy.Rate(10) # 10hz
+last_gesture = None
+counter = 0
+
+
 while True:
     # Run hand tracker on next frame
     # 'bag' contains some information related to the frame 
@@ -86,6 +97,20 @@ while True:
     if frame is None: break
     # Draw hands
     frame = renderer.draw(frame, hands, bag)
+    # publish to "gesture"
+    # print(hands)
+    # print("?///////////////////")
+    # print(tracker.use_gesture)
+    if (len(hands) != 0 and hands[0].gesture):        
+        if (hands[0].gesture == last_gesture):
+            counter += 1
+        else:
+            last_gesture = hands[0].gesture
+            counter = 0
+    if (counter == 30):
+        pub.publish(hands[0].gesture)        
+        print(last_gesture)
+
     key = renderer.waitKey(delay=1)
     if key == 27 or key == ord('q'):
         break

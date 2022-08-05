@@ -553,9 +553,9 @@ def recognize_gesture(hand):
 
     # Gesture
     if hand.thumb_state == 1 and hand.index_state == 1 and hand.middle_state == 1 and hand.ring_state == 1 and hand.little_state == 1:
-        hand.gesture = "FIVE"
+        hand.gesture = "STOP"   # FIVE
     elif hand.thumb_state == 0 and hand.index_state == 0 and hand.middle_state == 0 and hand.ring_state == 0 and hand.little_state == 0:
-        hand.gesture = "FIST"
+        hand.gesture = "CONTINUE"   # FIST
     elif hand.thumb_state == 1 and hand.index_state == 0 and hand.middle_state == 0 and hand.ring_state == 0 and hand.little_state == 0:
         hand.gesture = "OK" 
     elif hand.thumb_state == 0 and hand.index_state == 1 and hand.middle_state == 1 and hand.ring_state == 0 and hand.little_state == 0:

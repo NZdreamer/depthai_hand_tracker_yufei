@@ -78,7 +78,7 @@ class HandTracker:
                 internal_fps=23,
                 resolution="full",
                 internal_frame_height=640,
-                use_gesture=False,
+                use_gesture=True,
                 use_handedness_average=True,
                 single_hand_tolerance_thresh=10,
                 lm_nb_threads=2,
@@ -127,7 +127,11 @@ class HandTracker:
         self.use_handedness_average = use_handedness_average
         self.single_hand_tolerance_thresh = single_hand_tolerance_thresh
 
-        self.device = dai.Device()
+        # self.device = dai.Device()
+
+        for device in dai.Device.getAllAvailableDevices():
+            print(f"{device.getMxId()} {device.state}")
+        
 
         if input_src == None or input_src == "rgb" or input_src == "rgb_laconic":
             # Note that here (in Host mode), specifying "rgb_laconic" has no effect
@@ -212,9 +216,17 @@ class HandTracker:
         self.nb_anchors = self.anchors.shape[0]
         print(f"{self.nb_anchors} anchors have been created")
 
+        # 19443010613EDC1200 - Body Tracking
+        # 14442C10B19060D700 - Gesture
+        found, device_info = dai.Device.getDeviceByMxId("14442C10B19060D700")
+        if (not found):
+            print("device not found!!!!")
+        self.device = dai.Device(self.create_pipeline(), device_info)
+
         # Define and start pipeline
         usb_speed = self.device.getUsbSpeed()
-        self.device.startPipeline(self.create_pipeline())
+        # self.device.startPipeline(self.create_pipeline())
+        
         print(f"Pipeline started - USB speed: {str(usb_speed).split('.')[-1]}")
 
         # Define data queues 
@@ -260,6 +272,8 @@ class HandTracker:
         
 
     def create_pipeline(self):
+
+
         print("Creating pipeline...")
         # Start defining a pipeline
         pipeline = dai.Pipeline()
